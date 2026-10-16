@@ -158,7 +158,9 @@ export const Plugin = define({
             if (config.disabled !== undefined) model.enabled = !config.disabled
             if (config.limit !== undefined) model.limit = { ...model.limit, ...config.limit }
           })
-          if (config.variants === undefined && !source?.base)
+          // Inherited variants are spelled for the base model's package, so a package override needs fresh ones.
+          const repackaged = source?.base !== undefined && models.get(providerID, id)?.package !== source.base.package
+          if (config.variants === undefined && (!source?.base || repackaged))
             models.update(providerID, id, (model) => {
               model.variants = [
                 ...Variant.resolve({
